@@ -16,11 +16,11 @@ async function setupAuthorsTable() {
     await connection.query(`
       CREATE TABLE authors (
         author_id INT AUTO_INCREMENT PRIMARY KEY,
-        author_name VARCHAR(100),
-        university VARCHAR(100),
-        date_of_birth DATE,
+        author_name VARCHAR(100) NOT NULL,
+        university VARCHAR(100) NOT NULL,
+        date_of_birth DATE NOT NULL,
         h_index INT,
-        gender ENUM('male', 'female', 'other')
+        gender ENUM('male', 'female', 'other') NOT NULL
       );
     `)
     console.log('Table authors created')

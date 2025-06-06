@@ -26,7 +26,7 @@ async function runAggregates() {
         COUNT(ap.paper_id) AS Count
       FROM authors a
       JOIN authorPapers ap ON a.author_id = ap.author_id
-      WHERE a.gender = 'Female';
+      WHERE a.gender = 'female';
     `);
     console.log('\n Total research papers by female authors:');
     console.table(femalePapersSum);

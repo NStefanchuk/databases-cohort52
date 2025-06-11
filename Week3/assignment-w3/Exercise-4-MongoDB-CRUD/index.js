@@ -1,6 +1,10 @@
 const { MongoClient, ServerApiVersion } = require('mongodb')
-require("dotenv").config();
+require('dotenv').config()
 const { seedDatabase } = require('./seedDatabase.js')
+
+function getCollection(client) {
+  return client.db('databaseWeek3').collection('bob_ross_episodes')
+}
 
 async function createEpisodeExercise(client) {
   /**
@@ -49,8 +53,7 @@ async function findEpisodesExercises(client) {
    * Complete the following exercises.
    * The comments indicate what to do and what the result should be!
    */
-  const db = client.db('databaseWeek3')
-  const collection = db.collection('bob_ross_episodes')
+  const collection = getCollection(client)
 
   // Find the title of episode 2 in season 2 [Should be: WINTER SUN]
   const episode2 = await collection.findOne({ episode: 'S02E02' })
@@ -64,11 +67,8 @@ async function findEpisodesExercises(client) {
 
   // Find all of the episode titles where Bob Ross painted a CLIFF [Should be: NIGHT LIGHT, EVENING SEASCAPE, SURF'S UP, CLIFFSIDE, BY THE SEA, DEEP WILDERNESS HOME, CRIMSON TIDE, GRACEFUL WATERFALL]
   const cliffEpisodes = await collection.find({ elements: 'CLIFF' }).toArray()
-  console.log(
-    `The episodes that Bob Ross painted a CLIFF are ${cliffEpisodes
-      .map((e) => e.title)
-      .join(', ')}`
-  )
+  const titles = cliffEpisodes.map((e) => e.title).join(', ')
+  console.log(`The episodes that Bob Ross painted a CLIFF are ${titles}`)
 
   // Find all of the episode titles where Bob Ross painted a CLIFF and a LIGHTHOUSE [Should be: NIGHT LIGHT]
   const cliffLighthouse = await collection
@@ -90,11 +90,11 @@ async function updateEpisodeExercises(client) {
    *
    * Note: do NOT change the data.json file
    */
-  const collection = client.db('databaseWeek3').collection('bob_ross_episodes')
+  const collection = getCollection(client)
 
   // Episode 13 in season 30 should be called BLUE RIDGE FALLS, yet it is called BLUE RIDGE FALLERS now. Fix that
   const titleFixResult = await collection.updateOne(
-    { episode: 'S30E13', title: 'BLUE RIDGE FALLERS' },
+    { episode: 'S30E13' },
     { $set: { title: 'BLUE RIDGE FALLS' } }
   )
   console.log(
@@ -109,22 +109,31 @@ async function updateEpisodeExercises(client) {
     { elements: 'BUSHES' },
     { $set: { 'elements.$': 'BUSH' } }
   )
+  const totalEpisodes = await collection.countDocuments()
+  if (totalEpisodes !== 120) {
+    console.warn(`Expected 120 episodes, but found ${totalEpisodes}`)
+  }
   console.log(
     `Ran a command to update all the BUSHES to BUSH and it updated ${bushFixResult.modifiedCount} episodes`
   )
 }
 
 async function deleteEpisodeExercise(client) {
-  const collection = client.db('databaseWeek3').collection('bob_ross_episodes')
+  const collection = getCollection(client)
   /**
    * It seems an errand episode has gotten into our data.
    * This is episode 14 in season 31. Please remove it and verify that it has been removed!
    */
 
   const deleteResult = await collection.deleteOne({ episode: 'S31E14' })
-  console.log(
-    `Ran a command to delete episode and it deleted ${deleteResult.deletedCount} episodes`
-  )
+  console.log(`Deleted ${deleteResult.deletedCount} episodes`)
+
+  const check = await collection.findOne({ episode: 'S31E14' })
+  if (!check) {
+    console.log('Episode was successfully deleted.')
+  } else {
+    console.warn('Episode still exists:', check)
+  }
 }
 
 async function main() {

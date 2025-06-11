@@ -1,5 +1,5 @@
 +-----------+---------------+----------------+-----------+-------------+------------+-------------------+-----------+------------------+
-| member_id | member_name   | member_address | dinner_id | dinner_date | venue_code | venue_description | food_code | food_description |
+| member_id | member_name   | member_address | dinner_id | dinner_date | venue_id | venue_description | food_id | food_description |
 +-----------+---------------+----------------+-----------+-------------+------------+-------------------+-----------+------------------+
 |         1 | Amit          | 325 Max park   | D00001001 | 2020-03-15  | B01        | Grand Ball Room   | C1, C2    | Curry, Cake      |
 |         2 | Ben           | 24 Hudson lane | D00001002 | 2020/03/15  | B02        | Zoku Roof Top     | S1, C2    | Soup, Cake       |
@@ -12,7 +12,7 @@
 +-----------+---------------+----------------+-----------+-------------+------------+-------------------+-----------+------------------+
 
 1. What columns violate 1NF?
-food_code, food_description, dinner_date
+food_id, food_description, dinner_date
 
 2. What entities do you recognize that could be extracted?
 Member — club member
@@ -40,7 +40,7 @@ Stores information about event venues.
 
 | Column Name        | Description            | Key         |
 |--------------------|------------------------|-------------|
-| venue_code         | Unique venue code      | Primary Key |
+| venue_id         | Unique venue code      | Primary Key |
 | venue_description  | Description of venue   |             |
 
 ---
@@ -52,7 +52,7 @@ Stores information about dinner events.
 |----------------|-----------------------|-------------------------------------|
 | dinner_id      | Unique dinner ID      | Primary Key                         |
 | dinner_date    | Date of the dinner    |                                     |
-| venue_code     | Reference to venue    | Foreign Key (venues.venue_code)     |
+| venue_id     | Reference to venue    | Foreign Key (venues.venue_id)     |
 
 ---
 
@@ -61,7 +61,7 @@ Stores information about dishes.
 
 | Column Name       | Description           | Key         |
 |-------------------|-----------------------|-------------|
-| food_code         | Unique food code      | Primary Key |
+| food_id         | Unique food code      | Primary Key |
 | food_description  | Description of dish   |             |
 
 ---
@@ -72,8 +72,8 @@ Maps which foods were served at each dinner
 | Column Name   | Description            | Key                                 |
 |---------------|------------------------|-------------------------------------|
 | dinner_id     | Reference to dinner    | Foreign Key (dinners.dinner_id)     |
-| food_code     | Reference to food      | Foreign Key (foods.food_code)       |
-| Primary Key   | Composite key          | (dinner_id, food_code)              |
+| food_id     | Reference to food      | Foreign Key (foods.food_id)       |
+| Primary Key   | Composite key          | (dinner_id, food_id)              |
 
 ---
 

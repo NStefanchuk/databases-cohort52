@@ -8,50 +8,55 @@ async function run() {
   try {
     await client.connect()
     const db = client.db('databaseWeek4')
-    const col = db.collection('population')
+    const populationCollection = db.collection('population')
 
-    const data = await csv({ checkType: true }).fromFile('population_pyramid_1950-2022.csv')
+    const data = await csv({ checkType: true }).fromFile(
+      'population_pyramid_1950-2022.csv'
+    )
 
-    await col.deleteMany({})
-    await col.insertMany(data)
+    await populationCollection.deleteMany({})
+    await populationCollection.insertMany(data)
 
-    const byYear = await col.aggregate([
-      { $match: { Country: 'Netherlands' } },
-      {
-        $group: {
-          _id: '$Year',
-          countPopulation: { $sum: { $add: ['$M', '$F'] } },
+    const byYear = await populationCollection
+      .aggregate([
+        { $match: { Country: 'Netherlands' } },
+        {
+          $group: {
+            _id: '$Year',
+            countPopulation: { $sum: { $add: ['$M', '$F'] } },
+          },
         },
-      },
-      { $sort: { _id: 1 } },
-    ]).toArray()
+        { $sort: { _id: 1 } },
+      ])
+      .toArray()
 
     console.log(byYear)
 
-    const continents = await col.aggregate([
-      {
-        $match: {
-          Country: { $regex: /^[A-Z\s]+$/ },
-          Year: 2020,
-          Age: '100+',
+    const continents = await populationCollection
+      .aggregate([
+        {
+          $match: {
+            Country: { $regex: /^[A-Z\s]+$/ },
+            Year: 2020,
+            Age: '100+',
+          },
         },
-      },
-      {
-        $project: {
-          Country: 1,
-          Year: 1,
-          Age: 1,
-          M: 1,
-          F: 1,
-          TotalPopulation: { $add: ['$M', '$F'] },
+        {
+          $project: {
+            Country: 1,
+            Year: 1,
+            Age: 1,
+            M: 1,
+            F: 1,
+            TotalPopulation: { $add: ['$M', '$F'] },
+          },
         },
-      },
-    ]).toArray()
+      ])
+      .toArray()
 
     console.log(continents)
-
   } catch (err) {
-    console.error(err)
+    console.error('Error occurred during population aggregation script:', err)
   } finally {
     await client.close()
   }
